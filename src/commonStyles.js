@@ -5,5 +5,6 @@ export default {
         secundary: '#FFF',
         mainText: '#222',
         subText: '#555',
+        default: '#1631BE',
     },
 };
