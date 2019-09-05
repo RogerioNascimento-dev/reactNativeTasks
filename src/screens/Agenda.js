@@ -1,11 +1,19 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, Text, ImageBackground, FlatList} from 'react-native';
+import {
+    StyleSheet,
+    View,
+    Text,
+    ImageBackground,
+    FlatList,
+    Platform,
+    TouchableOpacity,
+} from 'react-native';
 import moment from 'moment';
 import 'moment/locale/pt-br';
 import todayImage from '../../assets/imgs/today.jpg';
 import commonStyles from '../commonStyles';
-import Tesk from '../components/Task';
 import Task from '../components/Task';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class Agenda extends Component {
     state = {
@@ -83,6 +91,8 @@ export default class Agenda extends Component {
                 doneAt: null,
             },
         ],
+        visibleTasks: [],
+        showDoneTasks: true,
     };
 
     toggleTask = id => {
@@ -93,7 +103,31 @@ export default class Agenda extends Component {
             }
             return task;
         });
-        this.setState({tasks});
+        this.setState({tasks}, this.filterTask);
+    };
+
+    filterTask = () => {
+        let visibleTasks = null;
+        if (this.state.showDoneTasks) {
+            visibleTasks = [...this.state.tasks];
+        } else {
+            const pending = task => task.doneAt == null;
+            visibleTasks = this.state.tasks.filter(pending);
+        }
+        this.setState({visibleTasks});
+    };
+
+    toggleFilter = () => {
+        this.setState(
+            {showDoneTasks: !this.state.showDoneTasks},
+            this.filterTask,
+        );
+    };
+
+    //ComponentDidMount método do ciclo de vida do react, executa assim que
+    //o componente é renderizado
+    componentDidMount = () => {
+        this.filterTask();
     };
 
     render() {
@@ -102,6 +136,20 @@ export default class Agenda extends Component {
                 <ImageBackground
                     source={todayImage}
                     style={styles.ImageBackground}>
+                    <View style={styles.iconBar}>
+                        <TouchableOpacity onPress={this.toggleFilter}>
+                            <Icon
+                                name={
+                                    this.state.showDoneTasks
+                                        ? 'eye'
+                                        : 'eye-slash'
+                                }
+                                size={20}
+                                color="#FFF"
+                            />
+                        </TouchableOpacity>
+                    </View>
+
                     <View styles={styles.titleBar}>
                         <Text style={styles.title}>Hoje</Text>
                         <Text style={styles.subtitle}>
@@ -111,10 +159,9 @@ export default class Agenda extends Component {
                         </Text>
                     </View>
                 </ImageBackground>
-
                 <View style={styles.tasksContainer}>
                     <FlatList
-                        data={this.state.tasks}
+                        data={this.state.visibleTasks}
                         keyExtractor={item => `${item.id}`}
                         renderItem={({item}) => (
                             <Task {...item} toggleTask={this.toggleTask} />
@@ -154,5 +201,11 @@ const styles = StyleSheet.create({
     },
     tasksContainer: {
         flex: 7,
+    },
+    iconBar: {
+        marginTop: Platform.OS === 'ios' ? 30 : 10,
+        marginHorizontal: 20,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
     },
 });
