@@ -7,6 +7,7 @@ import {
     FlatList,
     Platform,
     TouchableOpacity,
+    AsyncStorage,
 } from 'react-native';
 import moment from 'moment';
 import 'moment/locale/pt-br';
@@ -14,85 +15,11 @@ import todayImage from '../../assets/imgs/today.jpg';
 import commonStyles from '../commonStyles';
 import Task from '../components/Task';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import ActionButton from 'react-native-action-button';
 import AddTask from './AddTask';
 
 export default class Agenda extends Component {
     state = {
-        tasks: [
-            {
-                id: Math.random(),
-                desc: 'Comprar Curso React-native',
-                estimatedAt: new Date(),
-                doneAt: new Date(),
-            },
-            {
-                id: Math.random(),
-                desc: 'Concluir o curso',
-                estimatedAt: new Date(),
-                doneAt: null,
-            },
-            {
-                id: Math.random(),
-                desc: 'Comprar Curso React-native',
-                estimatedAt: new Date(),
-                doneAt: new Date(),
-            },
-            {
-                id: Math.random(),
-                desc: 'Concluir o curso',
-                estimatedAt: new Date(),
-                doneAt: null,
-            },
-            {
-                id: Math.random(),
-                desc: 'Comprar Curso React-native',
-                estimatedAt: new Date(),
-                doneAt: new Date(),
-            },
-            {
-                id: Math.random(),
-                desc: 'Concluir o curso',
-                estimatedAt: new Date(),
-                doneAt: null,
-            },
-            {
-                id: Math.random(),
-                desc: 'Comprar Curso React-native',
-                estimatedAt: new Date(),
-                doneAt: new Date(),
-            },
-            {
-                id: Math.random(),
-                desc: 'Concluir o curso',
-                estimatedAt: new Date(),
-                doneAt: null,
-            },
-            {
-                id: Math.random(),
-                desc: 'Comprar Curso React-native',
-                estimatedAt: new Date(),
-                doneAt: new Date(),
-            },
-            {
-                id: Math.random(),
-                desc: 'Concluir o curso',
-                estimatedAt: new Date(),
-                doneAt: null,
-            },
-            {
-                id: Math.random(),
-                desc: 'Comprar Curso React-native',
-                estimatedAt: new Date(),
-                doneAt: new Date(),
-            },
-            {
-                id: Math.random(),
-                desc: 'Concluir o curso',
-                estimatedAt: new Date(),
-                doneAt: null,
-            },
-        ],
+        tasks: [],
         visibleTasks: [],
         showDoneTasks: true,
         showAddTask: false,
@@ -130,6 +57,7 @@ export default class Agenda extends Component {
             visibleTasks = this.state.tasks.filter(pending);
         }
         this.setState({visibleTasks});
+        AsyncStorage.setItem('tasks', JSON.stringify(this.state.tasks));
     };
 
     toggleFilter = () => {
@@ -139,10 +67,17 @@ export default class Agenda extends Component {
         );
     };
 
+    deleteTask = id => {
+        const tasks = this.state.tasks.filter(task => task.id !== id);
+        this.setState({tasks}, this.filterTask);
+    };
+
     //ComponentDidMount método do ciclo de vida do react, executa assim que
     //o componente é renderizado
-    componentDidMount = () => {
-        this.filterTask();
+    componentDidMount = async () => {
+        const data = await AsyncStorage.getItem('tasks');
+        const tasks = JSON.parse(data) || [];
+        this.setState({tasks}, this.filterTask);
     };
 
     render() {
@@ -184,22 +119,40 @@ export default class Agenda extends Component {
                         data={this.state.visibleTasks}
                         keyExtractor={item => `${item.id}`}
                         renderItem={({item}) => (
-                            <Task {...item} toggleTask={this.toggleTask} />
+                            <Task
+                                {...item}
+                                toggleTask={this.toggleTask}
+                                onDelete={this.deleteTask}
+                            />
                         )}
                     />
                 </View>
-                <ActionButton
-                    buttonColor={commonStyles.colors.today}
+                <TouchableOpacity
+                    style={styles.cloneActionButton}
                     onPress={() => {
                         this.setState({showAddTask: true});
-                    }}
-                />
+                    }}>
+                    <View>
+                        <Icon name="plus" size={20} color="white" />
+                    </View>
+                </TouchableOpacity>
             </View>
         );
     }
 }
 
 const styles = StyleSheet.create({
+    cloneActionButton: {
+        position: 'absolute',
+        width: 50,
+        height: 50,
+        right: 20,
+        bottom: 20,
+        borderRadius: 50,
+        backgroundColor: commonStyles.colors.todayTransparent,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     container: {
         flex: 1,
     },

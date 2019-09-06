@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import moment from 'moment';
 import commonStyles from '../commonStyles';
-
 const initialState = {desc: '', date: new Date()};
 export default class AddTask extends Component {
     state = {...initialState};
@@ -36,8 +35,8 @@ export default class AddTask extends Component {
             if (e.action !== DatePickerAndroid.dismissedAction) {
                 const momentDate = moment(this.state.date);
                 momentDate.date(e.day);
-                momentDate.date(e.month);
-                momentDate.date(e.year);
+                momentDate.month(e.month);
+                momentDate.year(e.year);
                 this.setState({date: momentDate.toDate()});
             }
         });
@@ -123,12 +122,16 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
         fontSize: 20,
         height: 50,
+        marginBottom: 5,
+        borderBottomWidth: 1,
+        borderBottomColor: '#CCC',
     },
     date: {
         fontFamily: commonStyles.fontFamily,
         marginHorizontal: 10,
         fontSize: 20,
         height: 50,
+        textAlign: 'center',
     },
     contentButton: {
         flexDirection: 'row',
