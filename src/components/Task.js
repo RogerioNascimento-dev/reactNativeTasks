@@ -39,7 +39,7 @@ export default props => {
     const leftContent = (
         <View style={styles.exclude}>
             <Icon name="trash" size={25} color="#FFF" />
-            <Text style={styles.excludedText}>EXCLUIR DANILÃO</Text>
+            <Text style={styles.excludedText}>Excluir</Text>
         </View>
     );
     //#ao deslizar para o lado direito
