@@ -7,8 +7,8 @@ import {
     FlatList,
     Platform,
     TouchableOpacity,
-    AsyncStorage,
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import 'moment/locale/pt-br';
 import todayImage from '../../assets/imgs/today.jpg';

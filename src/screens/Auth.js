@@ -1,8 +1,8 @@
+/* eslint-disable dot-notation */
 import React, {Component} from 'react';
 import {
     StyleSheet,
     Text,
-    TextInput,
     View,
     ImageBackground,
     TouchableOpacity,
@@ -10,6 +10,9 @@ import {
 } from 'react-native';
 import commonStyles from '../commonStyles';
 import backgroundImage from '../../assets/imgs/login.jpg';
+import AuthInput from '../components/AuthInput';
+import axios from 'axios';
+import {showError, server} from '../common';
 
 export default class Auth extends Component {
     state = {
@@ -20,11 +23,37 @@ export default class Auth extends Component {
         confirmPassword: '',
     };
 
-    signinOrSignup = () => {
+    signinOrSignup = async () => {
         if (this.state.stageNew) {
-            Alert.alert('Sucesso!', 'Criar uma conta');
+            try {
+                await axios.post(server + '/signup', {
+                    name: this.state.name,
+                    email: this.state.email,
+                    password: this.state.password,
+                    confirmPassword: this.state.confirmPassword,
+                });
+                Alert.alert('Sucesso!', 'Usuário criado com sucesso!');
+                this.setState({stageNew: false});
+            } catch (ex) {
+                showError(ex);
+            }
         } else {
-            Alert.alert('Sucesso!', 'Realizar login');
+            try {
+                const res = await axios.post(server + '/signin', {
+                    email: this.state.email,
+                    password: this.state.password,
+                });
+                //Informando ao axios para enviar no header de todas
+                //as proximas requisições o token obtido na resposta do login
+                //realizado com sucesso acima.
+                axios.defaults.headers.common['Autorization'] =
+                    'bearer' + res.data.token;
+
+                //Navegando para tela inicial
+                this.props.navigation.navigate('Home');
+            } catch (ex) {
+                Alert.alert('Ops', 'Usuário ou senha não confere!');
+            }
         }
     };
 
@@ -40,20 +69,24 @@ export default class Auth extends Component {
                             : 'Informe seus dados'}
                     </Text>
                     {this.state.stageNew && (
-                        <TextInput
+                        <AuthInput
+                            icon="user"
                             placeholder="Nome"
                             style={styles.input}
                             value={this.state.nome}
                             onChangeText={name => this.setState({name})}
                         />
                     )}
-                    <TextInput
+                    <AuthInput
+                        icon="at"
                         placeholder="E-mail"
                         style={styles.input}
                         value={this.state.email}
                         onChangeText={email => this.setState({email})}
                     />
-                    <TextInput
+                    <AuthInput
+                        icon="lock"
+                        secureTextEntry={true}
                         placeholder="Senha"
                         style={styles.input}
                         value={this.state.password}
@@ -61,8 +94,10 @@ export default class Auth extends Component {
                     />
 
                     {this.state.stageNew && (
-                        <TextInput
+                        <AuthInput
                             placeholder="Confirme a senha"
+                            icon="asterisk"
+                            secureTextEntry={true}
                             style={styles.input}
                             value={this.state.confirmPassword}
                             onChangeText={confirmPassword =>
