@@ -7,6 +7,7 @@ export default props => {
         <View style={[styles.container, props.style]}>
             <Icon name={props.icon} size={20} style={styles.icon} />
             <TextInput {...props} style={styles.input} />
+            <Icon name="check" size={20} color={props.iconValidateColor} />
         </View>
     );
 };
