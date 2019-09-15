@@ -107,18 +107,11 @@ export default class Agenda extends Component {
     render() {
         let styleCollor = null;
         let image = null;
-        let barraStatus = null;
 
         switch (this.props.daysAhead) {
             case 0:
                 styleCollor = commonStyles.colors.today;
                 image = todayImage;
-                barraStatus = (
-                    <StatusBar
-                        barStyle="light-content"
-                        backgroundColor={styleCollor}
-                    />
-                );
                 break;
 
             case 1:

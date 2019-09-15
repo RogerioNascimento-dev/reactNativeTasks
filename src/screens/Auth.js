@@ -37,7 +37,7 @@ export default class Auth extends Component {
                 'bearer ' + res.data.token;
 
             //Navegando para tela inicial
-            this.props.navigation.navigate('Home');
+            this.props.navigation.navigate('Home', res.data);
         } catch (ex) {
             Alert.alert('Ops', 'Usuário ou senha não confere!');
         }
