@@ -1,5 +1,9 @@
 import React from 'react';
-import {createSwitchNavigator, createDrawerNavigator} from 'react-navigation';
+import {
+    createSwitchNavigator,
+    createDrawerNavigator,
+    createAppContainer,
+} from 'react-navigation';
 import Agenda from './screens/Agenda';
 import Auth from './screens/Auth';
 import commonStyles from './commonStyles';
@@ -59,7 +63,7 @@ const mainRoutes = {
     },
     Home: {
         name: 'Home',
-        screen: MenuNavigator,
+        screen: createAppContainer(MenuNavigator),
     },
 };
 const mainConfig = {
@@ -67,4 +71,4 @@ const mainConfig = {
 };
 
 const MainNavigator = createSwitchNavigator(mainRoutes, mainConfig);
-export default MainNavigator;
+export default createAppContainer(MainNavigator);
