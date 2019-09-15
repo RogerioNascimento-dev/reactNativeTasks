@@ -33,8 +33,8 @@ export default class Auth extends Component {
             //Informando ao axios para enviar no header de todas
             //as proximas requisições o token obtido na resposta do login
             //realizado com sucesso acima.
-            axios.defaults.headers.common['Autorization'] =
-                'bearer' + res.data.token;
+            axios.defaults.headers.common['Authorization'] =
+                'bearer ' + res.data.token;
 
             //Navegando para tela inicial
             this.props.navigation.navigate('Home');

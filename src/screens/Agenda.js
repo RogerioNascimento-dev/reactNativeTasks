@@ -8,14 +8,19 @@ import {
     Platform,
     TouchableOpacity,
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+//import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import 'moment/locale/pt-br';
-import todayImage from '../../assets/imgs/today.jpg';
 import commonStyles from '../commonStyles';
 import Task from '../components/Task';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AddTask from './AddTask';
+import axios from 'axios';
+import {server, showError} from '../common';
+import todayImage from '../../assets/imgs/today.jpg';
+import tomorrowImage from '../../assets/imgs/tomorrow.jpg';
+import weekImage from '../../assets/imgs/week.jpg';
+import monthImage from '../../assets/imgs/month.jpg';
 
 export default class Agenda extends Component {
     state = {
@@ -25,27 +30,25 @@ export default class Agenda extends Component {
         showAddTask: false,
     };
 
-    addTask = task => {
-        const tasks = [...this.state.tasks];
-        tasks.push({
-            id: Math.random(),
-            desc: task.desc,
-            estimatedAt: task.date,
-            doneAt: null,
-        });
-
-        this.setState({tasks, showAddTask: false}, this.filterTask);
+    addTask = async task => {
+        try {
+            await axios.post(server + '/tasks', {
+                desc: task.desc,
+                estimateAt: task.date,
+            });
+        } catch (ex) {
+            showError('Não foi possível saltar atividade.');
+        }
+        this.setState({showAddTask: false}, this.loadTasks);
     };
 
-    toggleTask = id => {
-        const tasks = this.state.tasks.map(task => {
-            if (id === task.id) {
-                task = {...task};
-                task.doneAt = task.doneAt ? null : new Date();
-            }
-            return task;
-        });
-        this.setState({tasks}, this.filterTask);
+    toggleTask = async id => {
+        try {
+            await axios.put(server + '/tasks/' + id + '/toggle');
+            this.loadTasks();
+        } catch (ex) {
+            showError('Não foi possível realizar esta alteração.');
+        }
     };
 
     filterTask = () => {
@@ -57,7 +60,8 @@ export default class Agenda extends Component {
             visibleTasks = this.state.tasks.filter(pending);
         }
         this.setState({visibleTasks});
-        AsyncStorage.setItem('tasks', JSON.stringify(this.state.tasks));
+        // -lógica para armazenamento offline
+        //AsyncStorage.setItem('tasks', JSON.stringify(this.state.tasks));
     };
 
     toggleFilter = () => {
@@ -67,20 +71,62 @@ export default class Agenda extends Component {
         );
     };
 
-    deleteTask = id => {
-        const tasks = this.state.tasks.filter(task => task.id !== id);
-        this.setState({tasks}, this.filterTask);
+    deleteTask = async id => {
+        try {
+            await axios.delete(server + '/tasks/' + id);
+            await this.loadTasks();
+        } catch (ex) {
+            showError('Não foi possível realizar esta exclusão');
+        }
     };
 
-    //ComponentDidMount método do ciclo de vida do react, executa assim que
-    //o componente é renderizado
+    // -ComponentDidMount método do ciclo de vida do react, executa assim que
+    // -o componente é renderizado
     componentDidMount = async () => {
-        const data = await AsyncStorage.getItem('tasks');
-        const tasks = JSON.parse(data) || [];
-        this.setState({tasks}, this.filterTask);
+        this.loadTasks();
+        // -lógica para armazenamento offline
+        //const data = await AsyncStorage.getItem('tasks');
+        //const tasks = JSON.parse(data) || [];
+        //this.setState({tasks}, this.filterTask);
     };
 
+    loadTasks = async () => {
+        try {
+            const maxDate = moment()
+                .add({days: this.props.daysAhead})
+                .format('YYYY-MM-DD 23:59');
+            const res = await axios.get(server + '/tasks?date=' + maxDate);
+            this.setState({tasks: res.data}, this.filterTask);
+        } catch (ex) {
+            showError(
+                'Não foi possível obter a lista de atividades, verifique sua conexão.',
+            );
+        }
+    };
     render() {
+        let styleCollor = null;
+        let image = null;
+
+        switch (this.props.daysAhead) {
+            case 0:
+                styleCollor = commonStyles.colors.today;
+                image = todayImage;
+                break;
+
+            case 1:
+                styleCollor = commonStyles.colors.tomorrow;
+                image = tomorrowImage;
+                break;
+            case 7:
+                styleCollor = commonStyles.colors.week;
+                image = weekImage;
+                break;
+
+            case 30:
+                styleCollor = commonStyles.colors.month;
+                image = monthImage;
+                break;
+        }
         return (
             <View style={styles.container}>
                 <AddTask
@@ -88,9 +134,7 @@ export default class Agenda extends Component {
                     onSave={this.addTask}
                     onCancel={() => this.setState({showAddTask: false})}
                 />
-                <ImageBackground
-                    source={todayImage}
-                    style={styles.ImageBackground}>
+                <ImageBackground source={image} style={styles.ImageBackground}>
                     <View style={styles.iconBar}>
                         <TouchableOpacity onPress={this.toggleFilter}>
                             <Icon
@@ -128,7 +172,10 @@ export default class Agenda extends Component {
                     />
                 </View>
                 <TouchableOpacity
-                    style={styles.cloneActionButton}
+                    style={[
+                        styles.cloneActionButton,
+                        {backgroundColor: styleCollor},
+                    ]}
                     onPress={() => {
                         this.setState({showAddTask: true});
                     }}>
@@ -149,7 +196,6 @@ const styles = StyleSheet.create({
         right: 20,
         bottom: 20,
         borderRadius: 50,
-        backgroundColor: commonStyles.colors.todayTransparent,
         alignItems: 'center',
         justifyContent: 'center',
     },
