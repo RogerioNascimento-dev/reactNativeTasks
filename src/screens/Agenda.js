@@ -7,6 +7,7 @@ import {
     FlatList,
     Platform,
     TouchableOpacity,
+    StatusBar,
 } from 'react-native';
 //import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
@@ -106,11 +107,18 @@ export default class Agenda extends Component {
     render() {
         let styleCollor = null;
         let image = null;
+        let barraStatus = null;
 
         switch (this.props.daysAhead) {
             case 0:
                 styleCollor = commonStyles.colors.today;
                 image = todayImage;
+                barraStatus = (
+                    <StatusBar
+                        barStyle="light-content"
+                        backgroundColor={styleCollor}
+                    />
+                );
                 break;
 
             case 1:
@@ -128,62 +136,76 @@ export default class Agenda extends Component {
                 break;
         }
         return (
-            <View style={styles.container}>
-                <AddTask
-                    isVisible={this.state.showAddTask}
-                    onSave={this.addTask}
-                    onCancel={() => this.setState({showAddTask: false})}
-                />
-                <ImageBackground source={image} style={styles.ImageBackground}>
-                    <View style={styles.iconBar}>
-                        <TouchableOpacity onPress={this.toggleFilter}>
-                            <Icon
-                                name={
-                                    this.state.showDoneTasks
-                                        ? 'eye'
-                                        : 'eye-slash'
-                                }
-                                size={20}
-                                color="#FFF"
-                            />
-                        </TouchableOpacity>
-                    </View>
-
-                    <View styles={styles.titleBar}>
-                        <Text style={styles.title}>Hoje</Text>
-                        <Text style={styles.subtitle}>
-                            {moment()
-                                .local('pt-br')
-                                .format('ddd, D [de] MMMM [de] YYYY')}
-                        </Text>
-                    </View>
-                </ImageBackground>
-                <View style={styles.tasksContainer}>
-                    <FlatList
-                        data={this.state.visibleTasks}
-                        keyExtractor={item => `${item.id}`}
-                        renderItem={({item}) => (
-                            <Task
-                                {...item}
-                                toggleTask={this.toggleTask}
-                                onDelete={this.deleteTask}
-                            />
-                        )}
+            <>
+                <View style={styles.container}>
+                    <AddTask
+                        isVisible={this.state.showAddTask}
+                        onSave={this.addTask}
+                        onCancel={() => this.setState({showAddTask: false})}
                     />
-                </View>
-                <TouchableOpacity
-                    style={[
-                        styles.cloneActionButton,
-                        {backgroundColor: styleCollor},
-                    ]}
-                    onPress={() => {
-                        this.setState({showAddTask: true});
-                    }}>
-                    <View>
-                        <Icon name="plus" size={20} color="white" />
+                    <ImageBackground
+                        source={image}
+                        style={styles.ImageBackground}>
+                        <View style={styles.iconBar}>
+                            <TouchableOpacity
+                                onPress={() =>
+                                    this.props.navigation.openDrawer()
+                                }>
+                                <Icon
+                                    name="bars"
+                                    color={commonStyles.colors.secundary}
+                                    size={20}
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={this.toggleFilter}>
+                                <Icon
+                                    name={
+                                        this.state.showDoneTasks
+                                            ? 'eye'
+                                            : 'eye-slash'
+                                    }
+                                    size={20}
+                                    color="#FFF"
+                                />
+                            </TouchableOpacity>
+                        </View>
+
+                        <View styles={styles.titleBar}>
+                            <Text style={styles.title}>{this.props.title}</Text>
+                            <Text style={styles.subtitle}>
+                                {moment()
+                                    .local('pt-br')
+                                    .format('ddd, D [de] MMMM [de] YYYY')}
+                            </Text>
+                        </View>
+                    </ImageBackground>
+                    <View style={styles.tasksContainer}>
+                        <FlatList
+                            data={this.state.visibleTasks}
+                            keyExtractor={item => `${item.id}`}
+                            renderItem={({item}) => (
+                                <Task
+                                    {...item}
+                                    toggleTask={this.toggleTask}
+                                    onDelete={this.deleteTask}
+                                />
+                            )}
+                        />
                     </View>
-                </TouchableOpacity>
-            </View>
+                    <TouchableOpacity
+                        style={[
+                            styles.cloneActionButton,
+                            {backgroundColor: styleCollor},
+                        ]}
+                        onPress={() => {
+                            this.setState({showAddTask: true});
+                        }}>
+                        <View>
+                            <Icon name="plus" size={20} color="white" />
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            </>
         );
     }
 }
@@ -231,6 +253,6 @@ const styles = StyleSheet.create({
         marginTop: Platform.OS === 'ios' ? 30 : 10,
         marginHorizontal: 20,
         flexDirection: 'row',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
     },
 });
