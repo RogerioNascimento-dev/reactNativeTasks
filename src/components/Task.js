@@ -72,7 +72,7 @@ export default props => {
                         {props.desc}
                     </Text>
                     <Text style={styles.date}>
-                        {moment(props.estimatedAt)
+                        {moment(props.estimateAt)
                             .locale('pr-br')
                             .format('ddd, D [de] MMMM [de] YYYY')}
                     </Text>
