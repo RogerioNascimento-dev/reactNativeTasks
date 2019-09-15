@@ -8,6 +8,7 @@ import {
     TouchableOpacity,
     Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import commonStyles from '../commonStyles';
 import backgroundImage from '../../assets/imgs/login.jpg';
 import AuthInput from '../components/AuthInput';
@@ -35,6 +36,8 @@ export default class Auth extends Component {
             //realizado com sucesso acima.
             axios.defaults.headers.common['Authorization'] =
                 'bearer ' + res.data.token;
+
+            AsyncStorage.setItem('userData', JSON.stringify(res.data));
 
             //Navegando para tela inicial
             this.props.navigation.navigate('Home', res.data);

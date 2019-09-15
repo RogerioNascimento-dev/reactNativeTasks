@@ -7,7 +7,6 @@ import {
     FlatList,
     Platform,
     TouchableOpacity,
-    StatusBar,
 } from 'react-native';
 //import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
