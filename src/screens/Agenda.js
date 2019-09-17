@@ -13,6 +13,7 @@ import moment from 'moment';
 import 'moment/locale/pt-br';
 import commonStyles from '../commonStyles';
 import Task from '../components/Task';
+import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AddTask from './AddTask';
 import axios from 'axios';
@@ -184,7 +185,7 @@ export default class Agenda extends Component {
                             )}
                         />
                     </View>
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                         style={[
                             styles.cloneActionButton,
                             {backgroundColor: styleCollor},
@@ -195,7 +196,19 @@ export default class Agenda extends Component {
                         <View>
                             <Icon name="plus" size={20} color="white" />
                         </View>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
+
+                    <ActionButton buttonColor="rgba(231,76,60,1)">
+                        <ActionButton.Item
+                            buttonColor="#9b59b6"
+                            title="Nova Tarefa"
+                            onPress={() => this.setState({showAddTask: true})}>
+                            <Icon
+                                name="tasks"
+                                style={styles.actionButtonIcon}
+                            />
+                        </ActionButton.Item>
+                    </ActionButton>
                 </View>
             </>
         );

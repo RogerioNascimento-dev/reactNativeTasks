@@ -58,7 +58,7 @@ export default props => {
 
     return (
         <Swipeable
-            leftActionActivationDistance={220}
+            leftActionActivationDistance={200}
             onLeftActionActivate={() => props.onDelete(props.id)}
             leftContent={leftContent}
             rightButtons={rightContent}>
