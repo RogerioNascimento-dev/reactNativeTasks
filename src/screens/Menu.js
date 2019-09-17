@@ -12,6 +12,7 @@ import {DrawerItems} from 'react-navigation';
 import AsyncStorage from '@react-native-community/async-storage';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {doShortStr} from '../commonFunctions';
 
 export default props => {
     const logout = () => {
@@ -23,28 +24,30 @@ export default props => {
     return (
         <ScrollView>
             <View style={styles.header}>
-                <Text style={styles.title}>Tasks</Text>
-                <Gravatar
-                    style={styles.avatar}
-                    options={{
-                        email: props.navigation.getParam('email'),
-                        secure: true,
-                    }}
-                />
-                <View style={styles.userInfo}>
-                    <View>
-                        <Text style={styles.name}>
-                            {props.navigation.getParam('name')}
-                        </Text>
-                        <Text style={styles.email}>
-                            {props.navigation.getParam('email')}
-                        </Text>
-                    </View>
+                <View style={styles.contentHeader}>
+                    <Text style={styles.title}>Tasks</Text>
                     <TouchableOpacity
                         style={styles.logoutIcon}
                         onPress={logout}>
                         <Icon name="sign-out" size={30} color="#800" />
                     </TouchableOpacity>
+                </View>
+                <View style={styles.userInfo}>
+                    <Gravatar
+                        style={styles.avatar}
+                        options={{
+                            email: props.navigation.getParam('email'),
+                            secure: true,
+                        }}
+                    />
+                    <View>
+                        <Text style={styles.name}>
+                            {doShortStr(props.navigation.getParam('name'), 18)}
+                        </Text>
+                        <Text style={styles.email}>
+                            {doShortStr(props.navigation.getParam('email'), 25)}
+                        </Text>
+                    </View>
                 </View>
             </View>
             <DrawerItems {...props} />
@@ -62,6 +65,7 @@ const styles = StyleSheet.create({
         fontFamily: commonStyles.fontFamily,
         fontSize: 30,
         paddingTop: 10,
+        marginLeft: 20,
     },
     avatar: {
         width: 60,
@@ -75,13 +79,14 @@ const styles = StyleSheet.create({
         fontFamily: commonStyles.fontFamily,
         color: commonStyles.colors.mainText,
         fontSize: 20,
-        marginLeft: 10,
+        marginRight: 20,
+        marginTop: 20,
     },
     email: {
         fontFamily: commonStyles.fontFamily,
         color: commonStyles.colors.subText,
         fontSize: 15,
-        marginLeft: 10,
+        marginRight: 20,
         marginBottom: 10,
     },
     menu: {
@@ -96,5 +101,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 20,
+        marginTop: 10,
+    },
+    contentHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
 });
