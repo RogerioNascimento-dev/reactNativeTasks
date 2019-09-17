@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {View, ActivityIndicator, StyleSheet} from 'react-native';
 
 export default class AuthOrApp extends Component {
-    componentWillMount = async () => {
+    componentDidMount = async () => {
         const json = await AsyncStorage.getItem('userData');
         const userData = JSON.parse(json) || {};
         if (userData.token) {
