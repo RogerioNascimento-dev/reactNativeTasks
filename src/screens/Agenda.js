@@ -22,6 +22,7 @@ import todayImage from '../../assets/imgs/today.jpg';
 import tomorrowImage from '../../assets/imgs/tomorrow.jpg';
 import weekImage from '../../assets/imgs/week.jpg';
 import monthImage from '../../assets/imgs/month.jpg';
+import {getPeriodForTasks} from '../commonFunctions';
 
 export default class Agenda extends Component {
     state = {
@@ -93,10 +94,15 @@ export default class Agenda extends Component {
 
     loadTasks = async () => {
         try {
-            const maxDate = moment()
-                .add({days: this.props.daysAhead})
-                .format('YYYY-MM-DD 23:59');
-            const res = await axios.get(server + '/tasks?date=' + maxDate);
+            const periodo = getPeriodForTasks(this.props.daysAhead);
+
+            const res = await axios.get(
+                server +
+                    '/tasks?dateStart=' +
+                    periodo.dateStart +
+                    '&dateEnd=' +
+                    periodo.dateEnd,
+            );
             this.setState({tasks: res.data}, this.filterTask);
         } catch (ex) {
             showError(
@@ -107,25 +113,45 @@ export default class Agenda extends Component {
     render() {
         let styleCollor = null;
         let image = null;
+        let periodoMenu = '---';
 
         switch (this.props.daysAhead) {
             case 0:
                 styleCollor = commonStyles.colors.today;
                 image = todayImage;
+                periodoMenu = moment()
+                    .local('pt-br')
+                    .format('ddd, D [de] MMMM [de] YYYY');
                 break;
 
             case 1:
                 styleCollor = commonStyles.colors.tomorrow;
                 image = tomorrowImage;
+                periodoMenu = moment()
+                    .add({days: 1})
+                    .local('pt-br')
+                    .format('ddd, D [de] MMMM [de] YYYY');
                 break;
             case 7:
                 styleCollor = commonStyles.colors.week;
                 image = weekImage;
+                periodoMenu =
+                    moment()
+                        .startOf('week')
+                        .local('pt-br')
+                        .format('ddd, D [à] ') +
+                    moment()
+                        .endOf('week')
+                        .local('pt-br')
+                        .format('ddd, D [De] MMMM YY');
                 break;
 
             case 30:
                 styleCollor = commonStyles.colors.month;
                 image = monthImage;
+                periodoMenu = moment()
+                    .local('pt-br')
+                    .format('MMMM YYYY');
                 break;
         }
         return (
@@ -165,11 +191,7 @@ export default class Agenda extends Component {
 
                         <View styles={styles.titleBar}>
                             <Text style={styles.title}>{this.props.title}</Text>
-                            <Text style={styles.subtitle}>
-                                {moment()
-                                    .local('pt-br')
-                                    .format('ddd, D [de] MMMM [de] YYYY')}
-                            </Text>
+                            <Text style={styles.subtitle}>{periodoMenu}</Text>
                         </View>
                     </ImageBackground>
                     <View style={styles.tasksContainer}>
@@ -198,9 +220,9 @@ export default class Agenda extends Component {
                         </View>
                     </TouchableOpacity> */}
 
-                    <ActionButton buttonColor="rgba(231,76,60,1)">
+                    <ActionButton buttonColor={styleCollor}>
                         <ActionButton.Item
-                            buttonColor="#9b59b6"
+                            buttonColor={commonStyles.colors.default}
                             title="Nova Tarefa"
                             onPress={() => this.setState({showAddTask: true})}>
                             <Icon

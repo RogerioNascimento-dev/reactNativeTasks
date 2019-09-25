@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 const checkMail = mail => {
     var er = new RegExp(
         /^[A-Za-z0-9_\-\.]+@[A-Za-z0-9_\-\.]{2,}\.[A-Za-z0-9]{2,}(\.[A-Za-z0-9])?/,
@@ -36,4 +38,49 @@ const doShortStr = (str, size) => {
     return shortText;
 };
 
-export {checkMail, doShortStr};
+const getPeriodForTasks = daysAhead => {
+    let dateStart = null;
+    let dateEnd = null;
+    const format = 'YYYY-MM-DD H:m:s';
+    switch (daysAhead) {
+        case 0:
+            dateStart = moment()
+                .startOf('day')
+                .format(format);
+            dateEnd = moment()
+                .endOf('day')
+                .format(format);
+            break;
+
+        case 1:
+            dateStart = moment()
+                .add({days: 1})
+                .startOf('day')
+                .format(format);
+            dateEnd = moment()
+                .add({days: 1})
+                .endOf('day')
+                .format(format);
+            break;
+        case 7:
+            dateStart = moment()
+                .startOf('week')
+                .format(format);
+            dateEnd = moment()
+                .endOf('week')
+                .format(format);
+            break;
+
+        case 30:
+            dateStart = moment()
+                .startOf('month')
+                .format(format);
+            dateEnd = moment()
+                .endOf('month')
+                .format(format);
+            break;
+    }
+
+    return {dateStart, dateEnd};
+};
+export {checkMail, doShortStr, getPeriodForTasks};
